@@ -1,18 +1,27 @@
 module top (
     input        CLOCK_50,
-    input  [3:0] KEY,        
+    input  [3:0] KEY,  
+    input [9:0] SW,      
     output [9:0] LEDR,       
     output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5 
 );
-    wire clk = CLOCK_50;
-    wire reset = ~KEY[0]; // Botão invertido
+  wire clk = CLOCK_50;
+  wire reset = ~KEY[0]; // Botão invertido
 
-    wire [31:0] PC, Instr, Address, WriteData, ReadData;
+  wire [31:0] PC, Instr, Address, WriteData, ReadData;
   wire MemWrite, endcontrol;
+
+reg counter[25:0];
+always(@posedge CLOCK_50) begin
+  counter <= counter + 1;
+end
+
+  wire clock_1hz = counter[25];
+  wire cpu_clk = SW[0] ? clock_1hz: CLOCK_50;
 
     // Instancia Processador
     riscvpipeline cpu (
-        .clk(clk), .reset(reset), .PC(PC), .Instr(Instr),
+        .clk(cpu_cpu), .reset(reset), .PC(PC), .Instr(Instr),
         .Address(Address), .WriteData(WriteData), .MemWrite(MemWrite),
       .ReadData(ReadData), .endcontrol(endcontrol)
     );
