@@ -246,7 +246,7 @@ module riscvpipeline (
    wire [2:0] M_funct3 = funct3(EM_instr);
    wire M_isB = (M_funct3[1:0] == 2'b00);
    wire M_isH = (M_funct3[1:0] == 2'b01);
-   assign halt = !reset & isEBREAK(MW_instr);
+   assign endcontrol = !reset & isEBREAK(MW_instr);
 
    /*************** STORE **************************/
    wire [31:0] M_STORE_data = EM_rs2;
@@ -284,8 +284,8 @@ module riscvpipeline (
    wire rs2Hazard = readsRs2(FD_instr) && (rs2Id(FD_instr) == rdId(DE_instr)) && (rdId(DE_instr) != 0);
    wire dataHazard = !FD_nop && (isLoad(DE_instr)) && (rs1Hazard || rs2Hazard);
 
-   assign F_stall = dataHazard | halt;
-   assign D_stall = dataHazard | halt;
+   assign F_stall = dataHazard | endcontrol;
+   assign D_stall = dataHazard | endcontrol;
 
 
    assign D_flush = E_JumpOrBranch;
@@ -294,7 +294,7 @@ module riscvpipeline (
 /******************************************************************************/
 
    always @(posedge clk) begin
-      if (halt) begin
+      if (endcontrol) begin
          $writememh("regs.out", RegisterBank);
          $finish();
       end

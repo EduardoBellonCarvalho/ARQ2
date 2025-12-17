@@ -19,23 +19,20 @@ end
   wire clock_1hz = counter[25];
   wire cpu_clk = SW[0] ? clock_1hz: CLOCK_50;
 
-    // Instancia Processador
     riscvpipeline cpu (
         .clk(cpu_cpu), .reset(reset), .PC(PC), .Instr(Instr),
         .Address(Address), .WriteData(WriteData), .MemWrite(MemWrite),
       .ReadData(ReadData), .endcontrol(endcontrol)
     );
 
-    // Instancia Memória
-    memory ram (
+    mem ram (
         .clk(clk), .pc_addr(PC), .instr_out(Instr),
         .data_addr(Address), .data_in(WriteData), .mem_write(MemWrite),
         .data_out(ReadData)
     );
 
-    // Contador de Performance
     reg [31:0] cycle_count;
-    always @(posedge clk) begin
+    always @(posedge cpu_clk) begin
         if (reset) cycle_count <= 0;
       else if (!endcontrol) cycle_count <= cycle_count + 1;
     end
