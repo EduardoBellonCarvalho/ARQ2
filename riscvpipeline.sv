@@ -6,7 +6,9 @@ module riscvpipeline (
     output [31:0] Address,  
     output [31:0] WriteData, 
     output        MemWrite,  
-    input  [31:0] ReadData);
+	input  [31:0] ReadData,
+	output endcontrol
+);
 
    /* The 10 "recognizers" for the 10 codeops */
    function isALUreg; input [31:0] I; isALUreg=(I[6:0]==7'b0110011); endfunction
