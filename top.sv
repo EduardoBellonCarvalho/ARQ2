@@ -11,7 +11,7 @@ module top (
   wire [31:0] PC, Instr, Address, WriteData, ReadData;
   wire MemWrite, endcontrol;
 
-reg counter[25:0];
+  reg [25:0] counter;
 always(@posedge CLOCK_50) begin
   counter <= counter + 1;
 end
@@ -20,7 +20,7 @@ end
   wire cpu_clk = SW[0] ? clock_1hz: CLOCK_50;
 
     riscvpipeline cpu (
-        .clk(cpu_cpu), .reset(reset), .PC(PC), .Instr(Instr),
+        .clk(cpu_clk), .reset(reset), .PC(PC), .Instr(Instr),
         .Address(Address), .WriteData(WriteData), .MemWrite(MemWrite),
       .ReadData(ReadData), .endcontrol(endcontrol)
     );
