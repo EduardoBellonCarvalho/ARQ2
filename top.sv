@@ -8,7 +8,7 @@ module top (
   wire clk = CLOCK_50;
   wire reset = ~KEY[0]; 
 
-    wire [31:0] PC, Instr, Address, WriteData, ReadData, memreaddata;
+    wire [31:0] PC, Instr, Address, WriteData, ReadData, memreaddata, reg_t0, reg_t1;
   wire MemWrite, endcontrol;
     wire [31:0] ram_data_out;
     
@@ -31,7 +31,7 @@ assign memreaddata = isRAM ? ram_data_out : IO_readdata;
     riscvpipeline cpu (
         .clk(cpu_clk), .reset(reset), .PC(PC), .Instr(Instr),
         .Address(Address), .WriteData(WriteData), .MemWrite(MemWrite),
-        .ReadData(memreaddata), .endcontrol(endcontrol)
+        .ReadData(memreaddata), .endcontrol(endcontrol), .reg_t0(reg_t0), .reg_t1(reg_t1)
     );
 
     mem ram (.clk(clk),.we(MemWrite && isRAM),.a(Address),.wd(WriteData),.rd(ram_data_out),.pc(PC),.instr(Instr));
