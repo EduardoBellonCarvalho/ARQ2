@@ -5,8 +5,10 @@ module riscvpipeline (
     input  [31:0] Instr,
     output [31:0] Address,  
     output [31:0] WriteData, 
-    output        MemWrite,  
 	input  [31:0] ReadData,
+   output [31:0] reg_t0,
+   output [31:0] reg_t1,
+   output MemWrite,  
 	output endcontrol
 );
 
@@ -95,6 +97,8 @@ module riscvpipeline (
    wire [4:0]  wbRdId;
 
    reg [31:0] RegisterBank [0:31];
+   assign reg_t0 = RegisterBank[5];
+   assign reg_t1 = RegisterBank[6];
 
 
    always @(posedge clk) begin
