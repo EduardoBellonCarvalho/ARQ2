@@ -6,11 +6,12 @@ module top (
     output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5 
 );
   wire clk = CLOCK_50;
-  wire reset = ~KEY[0]; // Botão invertido
+  wire reset = ~KEY[0]; 
 
-  wire [31:0] PC, Instr, Address, WriteData, ReadData;
+    wire [31:0] PC, Instr, Address, WriteData, ReadData, memreaddata;
   wire MemWrite, endcontrol;
-
+    wire [31:0] ram_data_out;
+    
   reg [25:0] counter;
 always(@posedge CLOCK_50) begin
   counter <= counter + 1;
@@ -18,18 +19,22 @@ end
 
   wire clock_1hz = counter[25];
   wire cpu_clk = SW[0] ? clock_1hz: CLOCK_50;
+    
+wire isIO = Address[8]; // 0x0000_0100
+wire isRAM = !isIO;
+localparam IO_SW_bit = 5; // 0x0000_0120
 
+wire [31:0] IO_readdata;
+assign IO_readdata = Address[IO_SW_bit] ? {22'b0, SW} : 32'b0;
+assign memreaddata = isRAM ? ram_data_out : IO_readdata;
+    
     riscvpipeline cpu (
         .clk(cpu_clk), .reset(reset), .PC(PC), .Instr(Instr),
         .Address(Address), .WriteData(WriteData), .MemWrite(MemWrite),
-      .ReadData(ReadData), .endcontrol(endcontrol)
+        .ReadData(memreaddata), .endcontrol(endcontrol)
     );
 
-    mem ram (
-        .clk(clk), .pc_addr(PC), .instr_out(Instr),
-        .data_addr(Address), .data_in(WriteData), .mem_write(MemWrite),
-        .data_out(ReadData)
-    );
+    mem ram (.clk(clk),.we(MemWrite && isRAM),.a(Address),.wd(WriteData),.rd(ram_data_out),.pc(PC),.instr(Instr));
 
     reg [31:0] cycle_count;
     always @(posedge cpu_clk) begin
