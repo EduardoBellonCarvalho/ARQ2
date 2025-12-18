@@ -42,9 +42,11 @@ assign memreaddata = isRAM ? ram_data_out : IO_readdata;
       else if (!endcontrol) cycle_count <= cycle_count + 1;
     end
 
-    assign LEDR = PC[11:2]; // LEDs mostram o PC
+    assign LEDR = PC[11:2]; 
 
-    // Mostra contador nos displays
+    wire [31:0] hex_data;
+    assign hex_data = SW[1] ? reg_t0 : SW[2] ? reg_t1 : cycle_count;
+        
     dec7seg d0 (cycle_count[3:0],   HEX0);
     dec7seg d1 (cycle_count[7:4],   HEX1);
     dec7seg d2 (cycle_count[11:8],  HEX2);
