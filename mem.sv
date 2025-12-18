@@ -1,22 +1,27 @@
 module mem (
-    input             clk,
-    input      [31:0] pc_addr,
-    output     [31:0] instr_out,
-    input      [31:0] data_addr,
-    input      [31:0] data_in,
-    input             mem_write,
-    output     [31:0] data_out
+    input  logic        clk, 
+    input  logic        we,
+    input  logic [31:0] a,  
+    input  logic [31:0] wd,  
+    output logic [31:0] rd, 
+    input  logic [31:0] pc,  
+    output logic [31:0] instr
 );
-    reg [31:0] RAM [0:1023]; // 4KB RAM
 
-    initial begin
-      $readmemh("riscv.hex", RAM); 
-    end
+    logic [31:0] RAM [0:255];
 
-    assign instr_out = RAM[pc_addr[11:2]];
-    assign data_out  = RAM[data_addr[11:2]];
 
-    always @(posedge clk) begin
-        if (mem_write) RAM[data_addr[11:2]] <= data_in;
-    end
+    initial
+        $readmemh("riscv.hex", RAM);
+
+    assign rd = RAM[a[31:2]]; 
+    
+
+    assign instr = RAM[pc[31:2]];
+
+
+    always_ff @(posedge clk)
+        if (we)
+            RAM[a[31:2]] <= wd;
+
 endmodule
